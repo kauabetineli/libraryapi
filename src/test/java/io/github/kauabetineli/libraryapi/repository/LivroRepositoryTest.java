@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @SpringBootTest
@@ -20,6 +21,8 @@ class LivroRepositoryTest {
 
     @Autowired
     AutorRepository autorRepository;
+    @Autowired
+    private LivroRepository livroRepository;
 
     @Test
     void salvarTest(){
@@ -120,7 +123,23 @@ class LivroRepositoryTest {
     }
 
     @Test
-    
+    void pesquisaPorTituloTest(){
+        List<Livro> lista = livroRepository.findByTitulo("Roubo a casa assombrada");
+        lista.forEach(System.out::println);
+    }
+
+    @Test
+    void pesquisaPorIsbnTest(){
+        List<Livro> lista = livroRepository.findByIsbn("9999-99");
+        lista.forEach(System.out::println);
+    }
+
+    @Test
+    void pesquisaPorTituloAndPrecoTest(){
+        var preco = BigDecimal.valueOf(204.23);
+        var tituloPesquisa = "Roubo a casa assombrada";
+        List<Livro> lista = livroRepository.findByTituloAndPreco(tituloPesquisa, preco);
+    }
 
 
 

@@ -10,3 +10,5 @@ spring:
     hibernate:
       ddl-auto: update #cria o banco e atualiza (mantem o banco)
     show-sql: true #mostrar o sql no terminal
+    properties:
+      hibernate.format_sql: true
