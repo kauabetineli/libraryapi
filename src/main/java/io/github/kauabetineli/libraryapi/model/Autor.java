@@ -30,8 +30,9 @@ public class Autor {
     @Column(name = "nacionalidade", length = 50, nullable = false)
     private String nacionalidade;
 
-    @Transient
-    @OneToMany(mappedBy = "autor") //como esta mapeado na entidade Livro
+    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL) //como esta mapeado na entidade Livro
     private List<Livro> livros;
+
+
 
 }

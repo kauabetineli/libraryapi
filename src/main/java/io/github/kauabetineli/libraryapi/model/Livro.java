@@ -37,7 +37,10 @@ public class Livro {
     private BigDecimal preco;
 
     //tipo de relacionamento (varios livros um autor) (um autor tem varios livros)
-    @ManyToOne(cascade =  CascadeType.ALL)
+    @ManyToOne(
+//            cascade =  CascadeType.ALL,
+                fetch = FetchType.LAZY
+    )
     @JoinColumn(name = "id_autor") // maneira de referenciar chave estrangeira
     private Autor autor;
 }

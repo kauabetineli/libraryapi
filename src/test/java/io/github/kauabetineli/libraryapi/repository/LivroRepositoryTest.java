@@ -6,6 +6,7 @@ import io.github.kauabetineli.libraryapi.model.Livro;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -78,6 +79,45 @@ class LivroRepositoryTest {
         livro.setAutor(autor);
 
         repository.save(livro);
+    }
+
+    @Test
+    void atualizarAutorDoLivro(){
+
+        UUID id = UUID.fromString("a8e23bb9-aef8-4409-98c8-946487a697d0");
+        var livroParaAtualizar = repository
+                .findById(id)
+                .orElse(null);
+
+        UUID idAutor = UUID.fromString("7ecc6266-7af2-4797-b783-12cfdf0c98c8");
+        Autor maria = autorRepository.findById(idAutor).orElse(null);
+
+        livroParaAtualizar.setAutor(maria);
+
+        repository.save(livroParaAtualizar);
+
+    }
+
+    // SE FOR FAZER ESTE TESTE, ATIVE O CASCADE.ALL NA ENTIDADE LIVRO!
+    @Test
+    void deletarCascade(){
+        UUID id = UUID.fromString("e2b7bb45-990f-4274-a09c-63f2c1321833");
+        repository.deleteById(id);
+    }
+
+    @Test
+    @Transactional // janela de transacao (Fetch Lazy) -> permite buscar um livro sem fazer um outro select para o autor
+    //e caso precise do autor, ele faz um select quando tiver essa necessidade
+    void buscarLivroTest(){
+        UUID id = UUID.fromString("3974873e-2bb7-4273-81d7-4fbacc265da1");
+        Livro livro = repository.findById(id).orElse(null);
+
+        System.out.println("Livro:");
+        System.out.println(livro.getTitulo());
+        System.out.println("Autor:");
+        System.out.println(livro.getAutor().getNome());
+
+
     }
 
 
