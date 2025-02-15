@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,6 +13,7 @@ import java.util.UUID;
 @Table(name = "livro", schema = "public")
 @Entity()
 @Data //Getter, Getter, toString, equalsAndHashCode, requiredArgsConstructor
+@ToString(exclude = "autor") //evitar loop infinito -> excluir a propriedade, colocar { } para array
 public class Livro {
 
     @Id

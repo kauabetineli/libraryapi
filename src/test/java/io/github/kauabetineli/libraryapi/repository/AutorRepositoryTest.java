@@ -6,6 +6,7 @@ import io.github.kauabetineli.libraryapi.model.Livro;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -109,5 +110,18 @@ public class AutorRepositoryTest {
 
 
 //        livroRepository.saveAll(autor.getLivros());
+    }
+
+    @Test
+    void listarLivrosAutorTest(){
+        var id = UUID.fromString("f76ce005-5bfd-4150-87d3-06c9df2b4f01");
+        var autor = autorRepository.findById(id).get();
+
+        // buscar os livros do autor
+
+        List<Livro> livrosLista = livroRepository.findByAutor(autor);
+        autor.setLivros(livrosLista);
+
+        autor.getLivros().forEach(System.out::println);
     }
 }
