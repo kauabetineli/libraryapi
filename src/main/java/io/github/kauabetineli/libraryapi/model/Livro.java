@@ -36,7 +36,8 @@ public class Livro {
 //    private Double preco;
     private BigDecimal preco;
 
-    @ManyToOne //tipo de relacionamento (varios livros um autor) (um autor tem varios livros)
+    //tipo de relacionamento (varios livros um autor) (um autor tem varios livros)
+    @ManyToOne(cascade =  CascadeType.ALL)
     @JoinColumn(name = "id_autor") // maneira de referenciar chave estrangeira
     private Autor autor;
 }
