@@ -17,29 +17,26 @@ import java.util.UUID;
 class LivroRepositoryTest {
 
     @Autowired
-    LivroRepository repository;
-
-    @Autowired
     AutorRepository autorRepository;
     @Autowired
-    private LivroRepository livroRepository;
+    LivroRepository livroRepository;
 
     @Test
     void salvarTest(){
         Livro livro = new Livro();
         livro.setIsbn("12313-123");
         livro.setPreco(BigDecimal.valueOf(100.22));
-        livro.setGenero(GeneroLivro.FICCAO);
-        livro.setTitulo("Outro novo livro");
+        livro.setGenero(GeneroLivro.CIENCIA);
+        livro.setTitulo("Ciencias");
         livro.setDataPublicacao(LocalDate.of(1980,1,2));
 
         Autor autor = autorRepository
                 .findById(UUID.fromString("7ecc6266-7af2-4797-b783-12cfdf0c98c8"))
                 .orElse(null);
 
-        livro.setAutor(autor);
+//        livro.setAutor(autor);
 
-        repository.save(livro);
+        livroRepository.save(livro);
     }
 
 
@@ -62,7 +59,7 @@ class LivroRepositoryTest {
 
         livro.setAutor(autor);
 
-        repository.save(livro);
+        livroRepository.save(livro);
     }
 
     @Test
@@ -81,14 +78,14 @@ class LivroRepositoryTest {
 
         livro.setAutor(autor);
 
-        repository.save(livro);
+        livroRepository.save(livro);
     }
 
     @Test
     void atualizarAutorDoLivro(){
 
         UUID id = UUID.fromString("a8e23bb9-aef8-4409-98c8-946487a697d0");
-        var livroParaAtualizar = repository
+        var livroParaAtualizar = livroRepository
                 .findById(id)
                 .orElse(null);
 
@@ -97,7 +94,7 @@ class LivroRepositoryTest {
 
         livroParaAtualizar.setAutor(maria);
 
-        repository.save(livroParaAtualizar);
+        livroRepository.save(livroParaAtualizar);
 
     }
 
@@ -105,7 +102,7 @@ class LivroRepositoryTest {
     @Test
     void deletarCascade(){
         UUID id = UUID.fromString("e2b7bb45-990f-4274-a09c-63f2c1321833");
-        repository.deleteById(id);
+        livroRepository.deleteById(id);
     }
 
     @Test
@@ -113,7 +110,7 @@ class LivroRepositoryTest {
     //e caso precise do autor, ele faz um select quando tiver essa necessidade
     void buscarLivroTest(){
         UUID id = UUID.fromString("3974873e-2bb7-4273-81d7-4fbacc265da1");
-        Livro livro = repository.findById(id).orElse(null);
+        Livro livro = livroRepository.findById(id).orElse(null);
 
         System.out.println("Livro:");
         System.out.println(livro.getTitulo());
@@ -142,28 +139,43 @@ class LivroRepositoryTest {
     }
 
     @Test
-    void listarLivrosComQueryJPQL(){
+    void listarLivrosComQueryJPQLTest(){
         var resultado = livroRepository.listarTodosOrdenadoPorTituloAndPreco();
         resultado.forEach(System.out::println);
     }
 
     @Test
-    void listarAutoresDosLivros(){
+    void listarAutoresDosLivrosTest(){
         var resultado = livroRepository.listarAutoresDosLivros();
         resultado.forEach(System.out::println);
     }
 
     @Test
-    void listarTitulosNaoRepetidosDosLivros(){
+    void listarTitulosNaoRepetidosDosLivrosTest(){
         var resultado = livroRepository.listarNomesDiferentesLivros();
         resultado.forEach(System.out::println);
     }
 
     @Test
-    void listarGenerosDeLivrosAutoresBrasileiros(){
+    void listarGenerosDeLivrosAutoresBrasileirosTest(){
         var resultado = livroRepository.listarGenerosAutoresBrasileiros();
         resultado.forEach(System.out::println);
     }
 
+    @Test
+    void listarPorGeneroQueryParamTest(){
+        var resultado = livroRepository.findByGenero(GeneroLivro.MISTERIO, "preco");
+        resultado.forEach(System.out::println);
+    }
+
+    @Test
+    void deletePorGeneroTest(){
+        livroRepository.deleteByGenero(GeneroLivro.CIENCIA);
+    }
+
+    @Test
+    void updateDataPublicacaoTest(){
+        livroRepository.updateDataPublicacao(LocalDate.of(2000, 1, 1));
+    }
 
 }
