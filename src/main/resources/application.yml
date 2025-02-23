@@ -8,7 +8,8 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update #cria o banco e atualiza (mantem o banco)
+      #ddl-auto: update #cria o banco e atualiza (mantem o banco)
+      ddl-auto: none #cria o banco e atualiza (mantem o banco)
     show-sql: true #mostrar o sql no terminal
     properties:
       hibernate.format_sql: true
