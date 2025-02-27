@@ -70,7 +70,7 @@ public class TransacaoService {
 
         livro.setAutor(autor);
 
-        livroRepository.saveAndFlush(livro);
+        livroRepository.saveAndFlush(livro); // envolve a questão de quando está em modo managed!
 
         if(autor.getNome().equals("Teste Francisco")){
             throw new RuntimeException("Rollback!");
