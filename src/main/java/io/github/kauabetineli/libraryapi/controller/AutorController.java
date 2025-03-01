@@ -1,6 +1,8 @@
 package io.github.kauabetineli.libraryapi.controller;
 
 import io.github.kauabetineli.libraryapi.controller.dto.AutorDTO;
+import io.github.kauabetineli.libraryapi.controller.dto.ErroResposta;
+import io.github.kauabetineli.libraryapi.exceptions.RegistroDuplicadoException;
 import io.github.kauabetineli.libraryapi.model.Autor;
 import io.github.kauabetineli.libraryapi.service.AutorService;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +21,6 @@ import java.util.stream.Collectors;
 // http://localhost:8080/autores/
 public class AutorController {
 
-
     private final AutorService autorService;
 
     public AutorController(AutorService autorService) {
@@ -27,18 +28,26 @@ public class AutorController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> salvar(@RequestBody AutorDTO autor) {
-        Autor autorEntidade = autor.mapearParaAutor();
-        autorService.salvar(autorEntidade);
+    public ResponseEntity<Object> salvar(@RequestBody AutorDTO autor) {
+
+        try {
+            Autor autorEntidade = autor.mapearParaAutor();
+            autorService.salvar(autorEntidade);
 
 // http://localhost:8080/autores/4ac5faac-04b8-4761-9025-444be9e9f3ef
-        URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("{id}")
-                .buildAndExpand(autorEntidade.getId())
-                .toUri();
+            URI location = ServletUriComponentsBuilder
+                    .fromCurrentRequest()
+                    .path("{id}")
+                    .buildAndExpand(autorEntidade.getId())
+                    .toUri();
 
-        return ResponseEntity.created(location).build();
+
+            return ResponseEntity.created(location).build();
+
+        } catch (RegistroDuplicadoException e){
+            var erroDTO = ErroResposta.conflito(e.getMessage());
+            return ResponseEntity.status(erroDTO.status()).body(erroDTO);
+        }
     }
 
     @GetMapping("{id}")
@@ -68,7 +77,7 @@ public class AutorController {
     @GetMapping
     public ResponseEntity<List<AutorDTO>> pesquisar(
             @RequestParam(value = "nome", required = false) String nome,
-            @RequestParam(value = "nacionalidade", required = false /*nao é obrigatorio passar esse parametro */) String nacionalidade){
+            @RequestParam(value = "nacionalidade", required = false /*nao é obrigatorio passar esse parametro */) String nacionalidade) {
         List<Autor> resultado = autorService.pesquisar(nome, nacionalidade);
         List<AutorDTO> lista = resultado
                 .stream()
@@ -90,7 +99,7 @@ public class AutorController {
 
         Optional<Autor> autorOptional = autorService.obterPorId(idAutor);
 
-        if(autorOptional.isEmpty()){
+        if (autorOptional.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
@@ -109,7 +118,6 @@ public class AutorController {
         return ResponseEntity.noContent().build();
 
     }
-
 
 
 }
