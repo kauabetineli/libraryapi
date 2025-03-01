@@ -35,7 +35,9 @@ public class Autor {
     @Column(name = "nacionalidade", length = 50, nullable = false)
     private String nacionalidade;
 
-    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL, fetch = FetchType.LAZY) //como esta mapeado na entidade Livro
+    @OneToMany(mappedBy = "autor",
+            /*cascade = CascadeType.ALL,*/
+            fetch = FetchType.LAZY) //como esta mapeado na entidade Livro
     private List<Livro> livros;
 
     @CreatedDate // coloca a data hora atual no banco
