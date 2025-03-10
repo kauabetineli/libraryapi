@@ -5,15 +5,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Table(name = "livro", schema = "public")
 @Entity()
 @Data //Getter, Getter, toString, equalsAndHashCode, requiredArgsConstructor
 @ToString(exclude = "autor") //evitar loop infinito -> excluir a propriedade, colocar { } para array
+@EntityListeners(AuditingEntityListener.class)
 public class Livro {
 
     @Id
@@ -45,4 +50,16 @@ public class Livro {
     )
     @JoinColumn(name = "id_autor") // maneira de referenciar chave estrangeira
     private Autor autor;
+
+    @CreatedDate // coloca a data hora atual no banco
+    @Column(name = "data_cadastro")
+    private LocalDateTime dataCadastro;
+
+    @LastModifiedDate // sempre que fazer um update, ele atualiza
+    @Column(name = "data_atualizacao")
+    private LocalDateTime dataAtualizacao;
+
+    @Column(name = "id_usuario")
+    private UUID idUsuario;
+
 }

@@ -6,6 +6,7 @@ import io.github.kauabetineli.libraryapi.exceptions.OperacaoNaoPermitidaExceptio
 import io.github.kauabetineli.libraryapi.exceptions.RegistroDuplicadoException;
 import io.github.kauabetineli.libraryapi.model.Autor;
 import io.github.kauabetineli.libraryapi.service.AutorService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,7 +27,7 @@ public class AutorController {
     private final AutorService autorService;
 
     @PostMapping
-    public ResponseEntity<Object> salvar(@RequestBody AutorDTO autor) {
+    public ResponseEntity<Object> salvar(@RequestBody @Valid AutorDTO autor) { //@Valid faz a validacao na entrada
 
         try {
             Autor autorEntidade = autor.mapearParaAutor();
@@ -84,7 +84,7 @@ public class AutorController {
     public ResponseEntity<List<AutorDTO>> pesquisar(
             @RequestParam(value = "nome", required = false) String nome,
             @RequestParam(value = "nacionalidade", required = false /*nao é obrigatorio passar esse parametro */) String nacionalidade) {
-        List<Autor> resultado = autorService.pesquisar(nome, nacionalidade);
+        List<Autor> resultado = autorService.pesquisaByExample(nome, nacionalidade);
         List<AutorDTO> lista = resultado
                 .stream()
                 .map(autor -> new AutorDTO(
@@ -98,8 +98,7 @@ public class AutorController {
 
     @PutMapping("{id}")
     public ResponseEntity<Object> atualizar(
-            @PathVariable("id") String id,
-            @RequestBody AutorDTO autorDTO) {
+            @PathVariable("id") String id, @RequestBody @Valid AutorDTO autorDTO) {
 
         try {
             UUID idAutor = UUID.fromString(id);

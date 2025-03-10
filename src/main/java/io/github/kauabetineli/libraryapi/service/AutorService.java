@@ -7,6 +7,8 @@ import io.github.kauabetineli.libraryapi.repository.AutorRepository;
 import io.github.kauabetineli.libraryapi.repository.LivroRepository;
 import io.github.kauabetineli.libraryapi.validator.AutorValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -61,6 +63,21 @@ public class AutorService {
 
         return autorRepository.findAll();
 
+    }
+
+    public List<Autor> pesquisaByExample(String nome, String nacionalidade){
+        Autor autor = new Autor();
+        autor.setNome(nome);
+        autor.setNacionalidade(nacionalidade);
+
+        ExampleMatcher matcher = ExampleMatcher
+                .matching()
+                .withIgnoreNullValues()
+                .withIgnoreCase()
+                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+
+        Example<Autor> autorExample = Example.of(autor, matcher);
+        return autorRepository.findAll(autorExample);
     }
 
     public boolean possuiLivro(Autor autor){
