@@ -2,12 +2,14 @@ package io.github.kauabetineli.libraryapi.controller;
 
 import io.github.kauabetineli.libraryapi.controller.dto.AutorDTO;
 import io.github.kauabetineli.libraryapi.controller.dto.ErroResposta;
+import io.github.kauabetineli.libraryapi.controller.mappers.AutorMapper;
 import io.github.kauabetineli.libraryapi.exceptions.OperacaoNaoPermitidaException;
 import io.github.kauabetineli.libraryapi.exceptions.RegistroDuplicadoException;
 import io.github.kauabetineli.libraryapi.model.Autor;
 import io.github.kauabetineli.libraryapi.service.AutorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -24,20 +26,21 @@ import java.util.stream.Collectors;
 // http://localhost:8080/autores/
 public class AutorController {
 
-    private final AutorService autorService;
+    private final AutorService service;
+    private final AutorMapper mapper;
 
     @PostMapping
-    public ResponseEntity<Object> salvar(@RequestBody @Valid AutorDTO autor) { //@Valid faz a validacao na entrada
+    public ResponseEntity<Object> salvar(@RequestBody @Valid AutorDTO dto) { //@Valid faz a validacao na entrada
 
         try {
-            Autor autorEntidade = autor.mapearParaAutor();
-            autorService.salvar(autorEntidade);
+            Autor autor = mapper.toEntity(dto);
+            service.salvar(autor);
 
 // http://localhost:8080/autores/4ac5faac-04b8-4761-9025-444be9e9f3ef
             URI location = ServletUriComponentsBuilder
                     .fromCurrentRequest()
                     .path("{id}")
-                    .buildAndExpand(autorEntidade.getId())
+                    .buildAndExpand(autor.getId())
                     .toUri();
 
 
@@ -52,13 +55,24 @@ public class AutorController {
     @GetMapping("{id}")
     public ResponseEntity<AutorDTO> obterDetalhes(@PathVariable("id") String id) {
         UUID idAutor = UUID.fromString(id);
-        Optional<Autor> autorOptional = autorService.obterPorId(idAutor);
-        if (autorOptional.isPresent()) {
-            Autor autor = autorOptional.get();
-            AutorDTO dto = new AutorDTO(autor.getId(), autor.getNome(), autor.getDataNascimento(), autor.getNacionalidade());
-            return ResponseEntity.ok(dto);
-        }
-        return ResponseEntity.notFound().build();
+
+        //Antes
+//        Optional<Autor> autorOptional = service.obterPorId(idAutor);
+
+        return service
+                .obterPorId(idAutor)
+                .map(autor -> {
+                    AutorDTO dto = mapper.toDTO(autor);
+                    return ResponseEntity.ok(dto);
+                }).orElseGet( () -> ResponseEntity.notFound().build());
+
+        //Antes
+//        if (autorOptional.isPresent()) {
+//            Autor autor = autorOptional.get();
+//            AutorDTO dto = mapper.toDTO(autor);
+//            return ResponseEntity.ok(dto);
+//        }
+//        return ResponseEntity.notFound().build();
     }
 
     //idempotente -> esquisar mais sobre
@@ -67,11 +81,11 @@ public class AutorController {
 
         try {
             UUID idAutor = UUID.fromString(id);
-            Optional<Autor> autorOptional = autorService.obterPorId(idAutor);
+            Optional<Autor> autorOptional = service.obterPorId(idAutor);
             if (autorOptional.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
-            autorService.deletar(autorOptional.get());
+            service.deletar(autorOptional.get());
             return ResponseEntity.noContent().build();
 
         } catch (OperacaoNaoPermitidaException e) {
@@ -84,15 +98,11 @@ public class AutorController {
     public ResponseEntity<List<AutorDTO>> pesquisar(
             @RequestParam(value = "nome", required = false) String nome,
             @RequestParam(value = "nacionalidade", required = false /*nao é obrigatorio passar esse parametro */) String nacionalidade) {
-        List<Autor> resultado = autorService.pesquisaByExample(nome, nacionalidade);
+        List<Autor> resultado = service.pesquisaByExample(nome, nacionalidade);
         List<AutorDTO> lista = resultado
                 .stream()
-                .map(autor -> new AutorDTO(
-                        autor.getId(),
-                        autor.getNome(),
-                        autor.getDataNascimento(),
-                        autor.getNacionalidade())
-                ).collect(Collectors.toList());
+                .map(mapper::toDTO)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(lista);
     }
 
@@ -103,7 +113,7 @@ public class AutorController {
         try {
             UUID idAutor = UUID.fromString(id);
 
-            Optional<Autor> autorOptional = autorService.obterPorId(idAutor);
+            Optional<Autor> autorOptional = service.obterPorId(idAutor);
 
             if (autorOptional.isEmpty()) {
                 return ResponseEntity.notFound().build();
@@ -111,11 +121,12 @@ public class AutorController {
 
             var autor = autorOptional.get();
 
+            //nao utilizar o mapper pois se for mapear e atualizar esses 3 campos, o mapper vai atribuir nulo aos demais campos do Autor
             autor.setNacionalidade(autorDTO.nacionalidade());
             autor.setNome(autorDTO.nome());
             autor.setDataNascimento(autorDTO.dataNascimento());
 
-            autorService.atualizar(autor);
+            service.atualizar(autor);
 
             return ResponseEntity.noContent().build();
 

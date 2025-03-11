@@ -1,6 +1,5 @@
 package io.github.kauabetineli.libraryapi.service;
 
-import io.github.kauabetineli.libraryapi.controller.dto.AutorDTO;
 import io.github.kauabetineli.libraryapi.exceptions.OperacaoNaoPermitidaException;
 import io.github.kauabetineli.libraryapi.model.Autor;
 import io.github.kauabetineli.libraryapi.repository.AutorRepository;
@@ -19,25 +18,25 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AutorService {
 
-    private final AutorRepository autorRepository;
-    private final AutorValidator autorValidator;
+    private final AutorRepository repository;
+    private final AutorValidator validator;
     private final LivroRepository livroRepository;
 
     public Autor salvar(Autor autor) {
-        autorValidator.validar(autor);
-        return autorRepository.save(autor);
+        validator.validar(autor);
+        return repository.save(autor);
     }
 
     public void atualizar(Autor autor) {
         if(autor.getId() == null){
             throw new IllegalArgumentException("Para atualizar é necessário que o autor já esteja salvo na base");
         }
-        autorValidator.validar(autor);
-        autorRepository.save(autor);
+        validator.validar(autor);
+        repository.save(autor);
     }
 
     public Optional<Autor> obterPorId(UUID id) {
-        return autorRepository.findById(id);
+        return repository.findById(id);
     }
 
     public void deletar(Autor autor) {
@@ -45,23 +44,23 @@ public class AutorService {
             throw new OperacaoNaoPermitidaException(
                     "Não é permitido excluir um Autor que possui livros cadastrados!");
         }
-        autorRepository.delete(autor);
+        repository.delete(autor);
     }
 
     public List<Autor> pesquisar(String nome, String nacionalidade) {
         if (nome != null && nacionalidade != null) {
-            return autorRepository.findByNomeAndNacionalidade(nome, nacionalidade);
+            return repository.findByNomeAndNacionalidade(nome, nacionalidade);
         }
 
         if (nome != null) {
-            return autorRepository.findByNome(nome);
+            return repository.findByNome(nome);
         }
 
         if (nacionalidade != null) {
-            return autorRepository.findByNacionalidade(nacionalidade);
+            return repository.findByNacionalidade(nacionalidade);
         }
 
-        return autorRepository.findAll();
+        return repository.findAll();
 
     }
 
@@ -77,7 +76,7 @@ public class AutorService {
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
 
         Example<Autor> autorExample = Example.of(autor, matcher);
-        return autorRepository.findAll(autorExample);
+        return repository.findAll(autorExample);
     }
 
     public boolean possuiLivro(Autor autor){

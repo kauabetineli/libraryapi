@@ -1,4 +1,4 @@
-package io.github.kauabetineli.libraryapi.common;
+package io.github.kauabetineli.libraryapi.controller.common;
 
 import io.github.kauabetineli.libraryapi.controller.dto.ErroCampo;
 import io.github.kauabetineli.libraryapi.controller.dto.ErroResposta;
