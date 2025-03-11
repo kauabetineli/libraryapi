@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/autores")
 @RequiredArgsConstructor
 // http://localhost:8080/autores/
-public class AutorController {
+public class AutorController implements GenericController{
 
     private final AutorService service;
     private final AutorMapper mapper;
@@ -37,12 +37,12 @@ public class AutorController {
             service.salvar(autor);
 
 // http://localhost:8080/autores/4ac5faac-04b8-4761-9025-444be9e9f3ef
-            URI location = ServletUriComponentsBuilder
-                    .fromCurrentRequest()
-                    .path("{id}")
-                    .buildAndExpand(autor.getId())
-                    .toUri();
-
+//            URI location = ServletUriComponentsBuilder
+//                    .fromCurrentRequest()
+//                    .path("{id}")
+//                    .buildAndExpand(autor.getId())
+//                    .toUri();
+            URI location = gerarHeaderLocation(autor.getId());
 
             return ResponseEntity.created(location).build();
 
