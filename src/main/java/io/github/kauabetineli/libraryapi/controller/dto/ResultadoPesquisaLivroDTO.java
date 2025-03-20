@@ -14,6 +14,5 @@ public record ResultadoPesquisaLivroDTO(
         GeneroLivro genero,
         BigDecimal preco,
         AutorDTO autor
-
 ) {
 }

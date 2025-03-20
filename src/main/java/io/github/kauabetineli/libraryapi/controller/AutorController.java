@@ -24,17 +24,17 @@ import java.util.stream.Collectors;
 @RequestMapping("/autores")
 @RequiredArgsConstructor
 // http://localhost:8080/autores/
-public class AutorController implements GenericController{
+public class AutorController implements GenericController {
 
     private final AutorService service;
     private final AutorMapper mapper;
 
     @PostMapping
-    public ResponseEntity<Object> salvar(@RequestBody @Valid AutorDTO dto) { //@Valid faz a validacao na entrada
+    public ResponseEntity<Void> salvar(@RequestBody @Valid AutorDTO dto) { //@Valid faz a validacao na entrada
 
-        try {
-            Autor autor = mapper.toEntity(dto);
-            service.salvar(autor);
+
+        Autor autor = mapper.toEntity(dto);
+        service.salvar(autor);
 
 // http://localhost:8080/autores/4ac5faac-04b8-4761-9025-444be9e9f3ef
 //            URI location = ServletUriComponentsBuilder
@@ -42,14 +42,11 @@ public class AutorController implements GenericController{
 //                    .path("{id}")
 //                    .buildAndExpand(autor.getId())
 //                    .toUri();
-            URI location = gerarHeaderLocation(autor.getId());
 
-            return ResponseEntity.created(location).build();
+        URI location = gerarHeaderLocation(autor.getId());
+        return ResponseEntity.created(location).build();
 
-        } catch (RegistroDuplicadoException e) {
-            var erroDTO = ErroResposta.conflito(e.getMessage());
-            return ResponseEntity.status(erroDTO.status()).body(erroDTO);
-        }
+
     }
 
     @GetMapping("{id}")
@@ -64,7 +61,7 @@ public class AutorController implements GenericController{
                 .map(autor -> {
                     AutorDTO dto = mapper.toDTO(autor);
                     return ResponseEntity.ok(dto);
-                }).orElseGet( () -> ResponseEntity.notFound().build());
+                }).orElseGet(() -> ResponseEntity.notFound().build());
 
         //Antes
 //        if (autorOptional.isPresent()) {
@@ -77,21 +74,16 @@ public class AutorController implements GenericController{
 
     //idempotente -> esquisar mais sobre
     @DeleteMapping("{id}")
-    public ResponseEntity<Object> deletar(@PathVariable("id") String id) {
+    public ResponseEntity<Void> deletar(@PathVariable("id") String id) {
 
-        try {
-            UUID idAutor = UUID.fromString(id);
-            Optional<Autor> autorOptional = service.obterPorId(idAutor);
-            if (autorOptional.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
-            service.deletar(autorOptional.get());
-            return ResponseEntity.noContent().build();
-
-        } catch (OperacaoNaoPermitidaException e) {
-            var erroResposta = ErroResposta.respostaPadrao(e.getMessage());
-            return ResponseEntity.status(erroResposta.status()).body(erroResposta);
+        UUID idAutor = UUID.fromString(id);
+        Optional<Autor> autorOptional = service.obterPorId(idAutor);
+        if (autorOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
+        service.deletar(autorOptional.get());
+        return ResponseEntity.noContent().build();
+
     }
 
     @GetMapping
@@ -107,33 +99,28 @@ public class AutorController implements GenericController{
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Object> atualizar(
-            @PathVariable("id") String id, @RequestBody @Valid AutorDTO autorDTO) {
+    public ResponseEntity<Void> atualizar(@PathVariable("id") String id, @RequestBody @Valid AutorDTO autorDTO) {
 
-        try {
-            UUID idAutor = UUID.fromString(id);
+        UUID idAutor = UUID.fromString(id);
 
-            Optional<Autor> autorOptional = service.obterPorId(idAutor);
+        Optional<Autor> autorOptional = service.obterPorId(idAutor);
 
-            if (autorOptional.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
-
-            var autor = autorOptional.get();
-
-            //nao utilizar o mapper pois se for mapear e atualizar esses 3 campos, o mapper vai atribuir nulo aos demais campos do Autor
-            autor.setNacionalidade(autorDTO.nacionalidade());
-            autor.setNome(autorDTO.nome());
-            autor.setDataNascimento(autorDTO.dataNascimento());
-
-            service.atualizar(autor);
-
-            return ResponseEntity.noContent().build();
-
-        } catch (RegistroDuplicadoException e) {
-            var erroDTO = ErroResposta.conflito(e.getMessage());
-            return ResponseEntity.status(erroDTO.status()).body(erroDTO);
+        if (autorOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
         }
+
+        var autor = autorOptional.get();
+
+        //nao utilizar o mapper pois se for mapear e atualizar esses 3 campos, o mapper vai atribuir nulo aos demais campos do Autor
+        autor.setNacionalidade(autorDTO.nacionalidade());
+        autor.setNome(autorDTO.nome());
+        autor.setDataNascimento(autorDTO.dataNascimento());
+
+        service.atualizar(autor);
+
+        return ResponseEntity.noContent().build();
+
+
     }
 
 
