@@ -3,6 +3,8 @@ package io.github.kauabetineli.libraryapi.repository;
 import io.github.kauabetineli.libraryapi.model.Autor;
 import io.github.kauabetineli.libraryapi.model.GeneroLivro;
 import io.github.kauabetineli.libraryapi.model.Livro;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -13,12 +15,15 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
  * @see LivroRepositoryTest
  */
 public interface LivroRepository extends JpaRepository<Livro, UUID>, JpaSpecificationExecutor<Livro> {
+
+    Page<Livro> findByGenero(GeneroLivro genero, Pageable page);
 
     // Query Method
 
@@ -29,7 +34,7 @@ public interface LivroRepository extends JpaRepository<Livro, UUID>, JpaSpecific
     List<Livro> findByTitulo(String titulo);
 
     // select * from livro where isbn = ?
-    List<Livro> findByIsbn(String isbn);
+    Optional<Livro> findByIsbn(String isbn);
 
     // select * from livro where titulo = ? and preco = ?
     List<Livro> findByTituloAndPreco(String titulo, BigDecimal preco);
